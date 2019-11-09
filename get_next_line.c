@@ -88,7 +88,6 @@ int		get_next_line(int fd, char **line)
 		cache = temp;
 		if (find_end_string(cache) >= 0)
 			break ;
-		printf("test\n");
 	}
 	if (n < 0)
 		return (ft_free(cache, -1));
