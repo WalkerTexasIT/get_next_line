@@ -12,7 +12,7 @@
 
 #include "get_next_line.h"
 
-char	*ft_malloc(void)
+static char		*ft_malloc(void)
 {
 	char *dest;
 
@@ -22,9 +22,9 @@ char	*ft_malloc(void)
 	return (dest);
 }
 
-int		ft_free(char *cache, int n)
+static int		ft_free(char *cache, int n)
 {
-	if (cache != 0)
+	if (*cache)
 	{
 		free(cache);
 		*cache = 0;
@@ -32,7 +32,7 @@ int		ft_free(char *cache, int n)
 	return (n);
 }
 
-int		find_end_string(char *cache)
+static int		find_end_string(char *cache)
 {
 	int i;
 
@@ -46,7 +46,7 @@ int		find_end_string(char *cache)
 	return (-1);
 }
 
-int		place_line(char **line, char *cache, int n)
+static int		place_line(char **line, char *cache, int n)
 {
 	char *temp;
 
@@ -63,7 +63,8 @@ int		place_line(char **line, char *cache, int n)
 			return (ft_free(cache, -1));
 		temp = 0;
 	}
-	ft_free(cache, 0);
+	if (cache != 0)
+		ft_free(cache, 0);
 	cache = temp;
 	if (n >= 0)
 		return (1);
@@ -72,10 +73,10 @@ int		place_line(char **line, char *cache, int n)
 
 int		get_next_line(int fd, char **line)
 {
-	ssize_t		n;
-	char		buff[BUFFER_SIZE + 1];
-	char		*temp;
+	ssize_t			n;
+	char			buff[BUFFER_SIZE + 1];
 	static char		*cache;
+	char			*temp;
 
 	if (fd < 0 || !line)
 		return (-1);
@@ -84,7 +85,8 @@ int		get_next_line(int fd, char **line)
 		buff[BUFFER_SIZE] = '\0';
 		if (!(temp = ft_strjoin(cache, buff)))
 			return (ft_free(cache, -1));
-		ft_free(cache, 0);
+		if (cache != 0)
+			ft_free(cache, 0);
 		cache = temp;
 		if (find_end_string(cache) >= 0)
 			break ;
