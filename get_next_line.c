@@ -12,12 +12,12 @@
 
 #include "get_next_line.h"
 
-int			ft_free(char *cache, int r)
+int			ft_free(char **cache, int r)
 {
-	if (cache != 0)
+	if (*cache)
 	{
-		free(cache);
-		cache = 0;
+		free(*cache);
+		*cache = 0;
 	}
 	return (r);
 }
@@ -37,8 +37,6 @@ int			find_end_string(char *cache)
 	int n;
 
 	n = 0;
-	if (!cache)
-		return (-1);
 	while (cache[n] != '\0')
 	{
 		if (cache[n] == '\n')
@@ -48,31 +46,28 @@ int			find_end_string(char *cache)
 	return (-1);
 }
 
-int			place_line(char **line, char *cache, int n)
+int			place_line(char **line, char **cache, int n)
 {
 	char	*temp;
 	int		r;
 
 	if (n >= 0)
 	{
-		if (!(*line = ft_substr(cache, 0, n)))
+		if (!(*line = ft_substr(*cache, 0, n)))
 			return (ft_free(cache, -1));
-		if (!(temp = ft_substr(cache, n + 1, ft_strlen(cache) - n)))
+		if (!(temp = ft_substr(*cache, n + 1, ft_strlen(*cache) - n)))
 			return (ft_free(cache, -1));
 		r = 1;
 	}
 	else
 	{
-		if (!(*line = ft_substr(cache, 0, ft_strlen(cache))))
+		if (!(*line = ft_substr(*cache, 0, ft_strlen(*cache))))
 			return (ft_free(cache, -1));
 		temp = 0;
 		r = 0;
 	}
-	printf("test\n");
-	if (cache[0] != 0)
-		ft_free(cache, 0);
-	printf("test1\n");
-	cache = temp;
+	ft_free(cache, 0);
+	*cache = temp;
 	return (r);
 }
 
@@ -85,26 +80,22 @@ int			get_next_line(int fd, char **line)
 
 	if(fd < 0 || !line)
 		return (-1);
-	if (find_end_string(cache) >= 0)
-		return (place_line(line, cache, find_end_string(cache)));
 	while ((n = read(fd, buff, BUFFER_SIZE)) > 0)
 	{
 		buff[BUFFER_SIZE] = '\0';
 		if (!(temp = ft_strjoin(cache, buff)))
-			return (ft_free(cache, -1));
-		printf("test0\n");
-		if (cache != 0)
-			ft_free(cache, 0);
+			return (ft_free(&cache, -1));
+		ft_free(&cache, 0);
 		cache = temp;
 		if (find_end_string(cache) >= 0)
 			break ;
 	}
 	if (n < 0)
-		return (ft_free(cache, -1));
-	if (n == 0 && (!cache || find_end_string(cache) < 0)
+		return (ft_free(&cache, -1));
+	if (n == 0 && (!cache || *cache == '\0')
 					&& (*line = ft_malloc()))
-			return (ft_free(cache, 0));
-	return (place_line(line, cache, find_end_string(cache)));
+			return (ft_free(&cache, 0));
+	return (place_line(line, &cache, find_end_string(cache)));
 }
 
 int    main(int argc, char **argv)
