@@ -5,86 +5,94 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: bminner <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/10/31 12:31:07 by bminner           #+#    #+#             */
-/*   Updated: 2019/10/31 12:31:08 by bminner          ###   ########.fr       */
+/*   Created: 2019/11/12 13:31:33 by bminner           #+#    #+#             */
+/*   Updated: 2019/11/12 13:31:34 by bminner          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static char		*ft_malloc(void)
+int			ft_free(char *cache, int r)
+{
+	if (cache != 0)
+	{
+		free(cache);
+		cache = 0;
+	}
+	return (r);
+}
+
+char		*ft_malloc(void)
 {
 	char *dest;
 
-	if (!(dest = (char *)malloc(sizeof(char))))
+	if (!(dest = (char*)malloc(sizeof(char))))
 		return (0);
 	dest[0] = '\0';
 	return (dest);
 }
 
-static int		ft_free(char *cache, int n)
+int			find_end_string(char *cache)
 {
-	if (*cache)
-	{
-		free(cache);
-		*cache = 0;
-	}
-	return (n);
-}
+	int n;
 
-static int		find_end_string(char *cache)
-{
-	int i;
-
-	i = 0;
-	while (cache[i] != '\0')
+	n = 0;
+	if (!cache)
+		return (-1);
+	while (cache[n] != '\0')
 	{
-		if (cache[i] == '\n')
-			return (i);
-		i++;
+		if (cache[n] == '\n')
+			return (n);
+		n++;
 	}
 	return (-1);
 }
 
-static int		place_line(char **line, char *cache, int n)
+int			place_line(char **line, char *cache, int n)
 {
-	char *temp;
+	char	*temp;
+	int		r;
 
 	if (n >= 0)
 	{
 		if (!(*line = ft_substr(cache, 0, n)))
 			return (ft_free(cache, -1));
-		if (!(temp = ft_substr(cache, n, ft_strlen(cache) - n - 1)))
+		if (!(temp = ft_substr(cache, n + 1, ft_strlen(cache) - n)))
 			return (ft_free(cache, -1));
+		r = 1;
 	}
 	else
 	{
 		if (!(*line = ft_substr(cache, 0, ft_strlen(cache))))
 			return (ft_free(cache, -1));
 		temp = 0;
+		r = 0;
 	}
-	if (cache != 0)
+	printf("test\n");
+	if (cache[0] != 0)
 		ft_free(cache, 0);
+	printf("test1\n");
 	cache = temp;
-	if (n >= 0)
-		return (1);
-	return (0);
+	return (r);
 }
 
-int		get_next_line(int fd, char **line)
+int			get_next_line(int fd, char **line)
 {
 	ssize_t			n;
 	char			buff[BUFFER_SIZE + 1];
 	static char		*cache;
 	char			*temp;
 
-	if (fd < 0 || !line)
+	if(fd < 0 || !line)
 		return (-1);
+	if (find_end_string(cache) >= 0)
+		return (place_line(line, cache, find_end_string(cache)));
 	while ((n = read(fd, buff, BUFFER_SIZE)) > 0)
 	{
 		buff[BUFFER_SIZE] = '\0';
 		if (!(temp = ft_strjoin(cache, buff)))
 			return (ft_free(cache, -1));
+		printf("test0\n");
 		if (cache != 0)
 			ft_free(cache, 0);
 		cache = temp;
@@ -93,9 +101,9 @@ int		get_next_line(int fd, char **line)
 	}
 	if (n < 0)
 		return (ft_free(cache, -1));
-	if (n == 0 && (!cache || *cache == '\0')
-			&& (*line = ft_malloc()))
-		return (ft_free(cache, 0));
+	if (n == 0 && (!cache || find_end_string(cache) < 0)
+					&& (*line = ft_malloc()))
+			return (ft_free(cache, 0));
 	return (place_line(line, cache, find_end_string(cache)));
 }
 
