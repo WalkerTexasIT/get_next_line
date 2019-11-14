@@ -6,7 +6,7 @@
 /*   By: bminner <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/12 13:31:33 by bminner           #+#    #+#             */
-/*   Updated: 2019/11/12 13:31:34 by bminner          ###   ########.fr       */
+/*   Updated: 2019/11/14 15:17:21 by bminner          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,34 +96,4 @@ int			get_next_line(int fd, char **line)
 					&& (*line = ft_malloc()))
 			return (ft_free(&cache, 0));
 	return (place_line(line, &cache, find_end_string(cache)));
-}
-
-int    main(int argc, char **argv)
-{
-    int        i;
-    int        fd;
-    char    *line;
-    int        ret;
-    printf("limit fdmax %d\n", OPEN_MAX);
-    if (argc != 2)
-    {
-        printf("You forgot the filename");
-        exit(1);
-    }
-    fd = open(argv[1], O_RDONLY);
-    i = 1;
-    while ((ret = get_next_line(fd, &line)) == 1)
-    {
-        printf("%3d [%s]\n", i, line);
-        free(line);
-        i++;
-    }
-    printf("%3d [%s]\n", i, line);
-    free(line);
-    if (ret == -1)
-        printf("error\n");
-    else if (ret == 0)
-        printf("EOF\n");
-    close(fd);
-    return (0);
 }
