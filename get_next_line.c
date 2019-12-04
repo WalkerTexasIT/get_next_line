@@ -82,7 +82,7 @@ int			get_next_line(int fd, char **line)
 		return (-1);
 	while ((n = read(fd, buff, BUFFER_SIZE)) > 0)
 	{
-		buff[BUFFER_SIZE] = '\0';
+		buff[n] = '\0';
 		if (!(temp = ft_strjoin(cache, buff)))
 			return (ft_free(&cache, -1));
 		ft_free(&cache, 0);
